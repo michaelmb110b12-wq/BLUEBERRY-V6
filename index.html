@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Site</title>
+</head>
+<body>
+  <script>
+    const win = window.open("about:blank", "_blank");
+    if (win) {
+      win.location.href = "https://scramjet-blueberry-s-123.hostless.app/";
+      window.close();
+    } else {
+      document.body.innerHTML = '<p>Please allow pop-ups to open the site.</p>';
+    }
+  </script>
+</body>
+</html>
