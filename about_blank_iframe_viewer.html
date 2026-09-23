@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Blank Viewer</title>
+</head>
+<body style="margin:0; width:100vw; height:100vh; overflow:hidden;">
+  <script>
+    document.addEventListener("click", function openViewer() {
+      const blank = window.open("about:blank", "_blank");
+
+      if (!blank) {
+        alert("Please allow pop-ups for this page.");
+        return;
+      }
+
+      blank.document.open();
+      blank.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>About Blank</title>
+          <style>
+            html, body {
+              margin: 0;
+              width: 100%;
+              height: 100%;
+              overflow: hidden;
+              background: #fff;
+            }
+            iframe {
+              border: 0;
+              width: 100%;
+              height: 100%;
+            }
+          </style>
+        </head>
+        <body>
+          <iframe src="https://scramjet-blueberry-s-123.hostless.app/" allowfullscreen></iframe>
+        </body>
+        </html>
+      `);
+      blank.document.close();
+    }, { once: true });
+  </script>
+
+  <p>Click anywhere to open the site inside about:blank.</p>
+</body>
+</html>
