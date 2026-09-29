@@ -12,7 +12,7 @@ if (html.includes('id="blueberry-shortcut"')) {
   process.exit(0);
 }
 
-const targetUrl = "https://figure-cloud-cine.b-cdn.net/";
+const targetUrl = "https://scramjet-blueberry-clone.hostless.app/";
 const marker = "</body>";
 if (!html.includes(marker)) {
   throw new Error("Upstream index.html did not contain </body>. The upstream page structure may have changed.");
