@@ -1,4 +1,4 @@
-# Blueberry Scramjet — Hostless
+# DO NOT FORK Blueberry Scramjet — Hostless
 
 This repository is a minimal deployment wrapper around the current
 [MercuryWorkshop/Scramjet-App](https://github.com/MercuryWorkshop/Scramjet-App).
@@ -6,7 +6,6 @@ This repository is a minimal deployment wrapper around the current
 The wrapper makes **one user-facing change only**: it adds a small Steam-logo button
 that fills the existing Scramjet address form with:
 
-`https://figure-cloud-cine.b-cdn.net/`
 
 The button uses the upstream form-submit flow, so the target opens through the
 same Scramjet instance and its local `/wisp/` endpoint.
