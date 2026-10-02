@@ -12,7 +12,7 @@ if (html.includes('id="blueberry-shortcut"')) {
   process.exit(0);
 }
 
-const targetUrl = "https://scramjet-blueberry-clone.hostless.app/";
+const targetUrl = "https://nocturne.lol/vms";
 const marker = "</body>";
 if (!html.includes(marker)) {
   throw new Error("Upstream index.html did not contain </body>. The upstream page structure may have changed.");
