@@ -13,6 +13,7 @@ WORKDIR /app
 RUN git clone --depth 1 https://github.com/MercuryWorkshop/Scramjet-App.git /app
 
 COPY patch-scramjet.mjs /tmp/patch-scramjet.mjs
+COPY loader.html /app/public/loader.html
 RUN node /tmp/patch-scramjet.mjs /app/public/index.html && rm /tmp/patch-scramjet.mjs
 
 RUN corepack enable \
