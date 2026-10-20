@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Blueberry Cloud — Relay Loader</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: #080a10; color: #f3f5fb; font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body { min-height: 100vh; display: grid; place-items: center; padding: 22px; }
+    main { width: min(720px, 100%); border: 1px solid #2d3547; border-radius: 18px; padding: clamp(22px, 4vw, 36px); background: linear-gradient(145deg, #151b2a, #0b0e15); box-shadow: 0 24px 70px #0008; }
+    .brand { display: flex; gap: 12px; align-items: center; font-size: 18px; font-weight: 800; }
+    .mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: #7864ff; color: white; font-weight: 900; font-size: 21px; }
+    h1 { margin: 26px 0 8px; font-size: clamp(24px, 5vw, 34px); }
+    p { color: #b6c0d2; line-height: 1.6; }
+    .notice { border: 1px solid #76592e; background: #241c11; color: #f4d9a6; border-radius: 11px; padding: 14px; font-size: 14px; }
+    .status { margin-top: 18px; border: 1px solid #2b3850; background: #101827; border-radius: 10px; padding: 13px 15px; color: #dbe5fa; overflow-wrap: anywhere; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    button, a.button { border: 0; border-radius: 10px; padding: 12px 16px; font: inherit; font-weight: 750; text-decoration: none; cursor: pointer; }
+    button { color: #fff; background: #7864ff; }
+    button:disabled { opacity: .65; cursor: wait; }
+    a.button { color: #e2e8f8; background: #242c3d; }
+    .small { font-size: 12px; color: #8994a9; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <main id="loader-panel">
+    <div class="brand"><span class="mark">B</span><span>Blueberry Cloud · Experimental Relay Loader</span></div>
+    <h1>Load the relay browser</h1>
+    <p>This page follows the remote-loader approach in the supplied single-file example. It fetches a pinned copy of <a href="https://github.com/TongSherbet/im-single/tree/e1d1b416859fed1e25e810ee78893951ac9cdda4" target="_blank" rel="noopener" style="color:#b8adff">im-single</a>'s <code>loader.js</code> and lets that script select an available relay.</p>
+    <div class="notice"><strong>Privacy note:</strong> this is a separate third-party relay system, not the Scramjet/Wisp backend. The selected relay operator may be able to observe connection metadata or browsing activity. Only use it if you trust the service and its policies.</div>
+    <div class="status" id="status" role="status" aria-live="polite">Ready. The remote script will only load after you press the button.</div>
+    <div class="actions">
+      <button id="start" type="button">Load relay browser</button>
+      <a class="button" href="/" rel="noopener">Back to Scramjet</a>
+    </div>
+    <p class="small">The loader script and relay list are hosted externally. CDN mirrors are tried in sequence; if the project or relay network is unavailable, this page may not work.</p>
+  </main>
+  <script>
+    (function () {
+      "use strict";
+      const pinnedRevision = "e1d1b416859fed1e25e810ee78893951ac9cdda4";
+      const baseUrls = [
+        "https://cdn.jsdelivr.net/gh/TongSherbet/im-single@" + pinnedRevision + "/",
+        "https://raw.githubusercontent.com/TongSherbet/im-single/" + pinnedRevision + "/",
+        "https://cdn.statically.io/gh/TongSherbet/im-single@" + pinnedRevision + "/",
+        "https://raw.githack.com/TongSherbet/im-single/" + pinnedRevision + "/"
+      ];
+      const button = document.getElementById("start");
+      const status = document.getElementById("status");
+      let started = false;
+
+      async function fetchLoader(baseUrl, signal) {
+        const response = await fetch(baseUrl + "loader.js?singlefile=1", { signal, cache: "no-store" });
+        if (!response.ok) throw new Error("HTTP " + response.status);
+        const source = await response.text();
+        // Basic sanity checks: loader.js should be a non-empty executable script.
+        if (source.length < 1000 || !/async/.test(source) || !/document/.test(source)) {
+          throw new Error("The response did not look like loader.js.");
+        }
+        return { baseUrl, source };
+      }
+
+      button.addEventListener("click", async function () {
+        if (started) return;
+        started = true;
+        button.disabled = true;
+        status.textContent = "Fetching loader.js from the pinned upstream revision…";
+
+        const controllers = baseUrls.map(() => new AbortController());
+        try {
+          const winner = await Promise.any(baseUrls.map((baseUrl, index) =>
+            fetchLoader(baseUrl, controllers[index].signal)
+              .then(result => ({ ...result, index }))
+          ));
+          controllers.forEach((controller, index) => {
+            if (index !== winner.index) controller.abort();
+          });
+
+          // loader.js reads window.RELAY_DOMAIN to retrieve the matching relays.js.
+          window.RELAY_DOMAIN = winner.baseUrl;
+          status.textContent = "Loader downloaded. Checking the available relays…";
+
+          const script = document.createElement("script");
+          script.textContent = winner.source;
+          document.head.appendChild(script);
+        } catch (error) {
+          status.textContent = "Could not load the remote loader. Check your connection or try again later. " + (error && error.message ? error.message : "");
+          button.disabled = false;
+          started = false;
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
