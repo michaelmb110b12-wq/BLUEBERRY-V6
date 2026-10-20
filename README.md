@@ -1,42 +1,47 @@
-# DO NOT FORK Blueberry Scramjet — Hostless
+# Blueberry Scramjet — Hostless
 
 This repository is a minimal deployment wrapper around the current
 [MercuryWorkshop/Scramjet-App](https://github.com/MercuryWorkshop/Scramjet-App).
 
-The wrapper makes **one user-facing change only**: it adds a small Steam-logo button
-that fills the existing Scramjet address form with:
+The default homepage remains the upstream Scramjet app and uses its normal
+Scramjet client and same-origin `/wisp/` endpoint. This branch adds two
+extras:
 
+- A Steam-logo shortcut that fills the Scramjet address form with
+  `https://nocturne.lol/`.
+- A **Relay Loader** shortcut that opens `/loader.html`, an experimental
+  page based on the provided remote-`loader.js` example.
 
-The button uses the upstream form-submit flow, so the target opens through the
-same Scramjet instance and its local `/wisp/` endpoint.
+## About `/loader.html`
+
+The relay loader is **not Scramjet and does not use this app's Wisp endpoint**.
+It downloads a pinned revision of
+[TongSherbet/im-single](https://github.com/TongSherbet/im-single/tree/e1d1b416859fed1e25e810ee78893951ac9cdda4),
+then that script fetches its relay list and tries third-party relay pages.
+Those relay services are separately operated, may be unavailable, and may
+observe connection metadata or browsing activity. Review the linked source and
+only use relay services you trust. The page requires the user to click **Load
+relay browser** before the remote script runs.
+
+Because the relay page relies on external CDNs and relay hosts, availability is
+not guaranteed. This feature is intentionally separate from the standard
+Scramjet/Wisp path.
 
 ## Deploy on Hostless
 
-Hostless can deploy long-running Node.js web services from a Git repository and
-sets the `PORT` environment variable for the app. The upstream Scramjet-App
-already listens on `process.env.PORT` (defaulting to 8080), so no source changes
-to the server are needed.
-
-1. Put these files in a GitHub repository.
-2. In Hostless, choose **Create New App**.
-3. Connect your GitHub account and select the repository.
-4. Select **Docker** as the build system.
-5. You can leave the start command empty because the Dockerfile already uses
+1. In Hostless, choose **Create New App**.
+2. Connect GitHub and select this repository.
+3. Select **Docker** as the build system.
+4. Leave the start command empty because the Dockerfile already uses
    `pnpm start`.
-6. Deploy.
+5. Deploy the `loaderjs-relay` branch to test the experimental route.
 
-Hostless documents that its free plan includes one always-on app with no cold
-starts and no credit card requirement. Its current free resource limits are
-account-wide 0.5 vCPU and 1 GiB RAM, with each app process capped at 256 MiB.
-See the Hostless pricing documentation before deploying a public proxy because
-Scramjet traffic can use significant resources.
+Hostless sets the `PORT` environment variable for the app. The upstream
+Scramjet-App already listens on `process.env.PORT` (defaulting to 8080), so
+the server does not need a port change.
 
 ## Important
 
-The upstream project describes Scramjet as an experimental web proxy. Review
-its license, supported-site guidance, and acceptable-use requirements before
-running a public instance.
-
-This wrapper does not include a copy of the upstream repository; the Docker
-build pulls the current `main` branch, applies the one shortcut patch, then runs
-that upstream app unchanged.
+Scramjet describes itself as an experimental interception-based web proxy.
+Review its license, supported-site guidance, and acceptable-use requirements
+before operating a public instance. Proxy use can consume significant resources.
