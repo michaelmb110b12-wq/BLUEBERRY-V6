@@ -7,8 +7,11 @@ if (!file) {
 
 let html = readFileSync(file, "utf8");
 
-if (html.includes('id="blueberry-shortcut"')) {
-  console.log("Blueberry shortcut already present; nothing to do.");
+if (
+  html.includes('id="blueberry-shortcut"') &&
+  html.includes('id="blueberry-loader-shortcut"')
+) {
+  console.log("Blueberry shortcuts already present; nothing to do.");
   process.exit(0);
 }
 
@@ -19,56 +22,85 @@ if (!html.includes(marker)) {
 }
 
 const addition = `
-\t\t<div id="blueberry-shortcut" aria-label="Open Blueberry Cloud Games">
-\t\t\t<button id="blueberry-launch" type="button" title="Open Blueberry Cloud Games">
-\t\t\t\t<img src="https://cdn.simpleicons.org/steam/ffffff" alt="Steam" width="30" height="30" />
-\t\t\t</button>
-\t\t</div>
-\t\t<style>
-\t\t\t#blueberry-shortcut {
-\t\t\t\tposition: fixed;
-\t\t\t\ttop: 18px;
-\t\t\t\tright: 18px;
-\t\t\t\tz-index: 9999;
-\t\t\t}
-\t\t\t#blueberry-launch {
-\t\t\t\twidth: 54px;
-\t\t\t\theight: 54px;
-\t\t\t\tpadding: 0;
-\t\t\t\tborder-radius: 16px;
-\t\t\t\tborder: 1px solid rgba(255, 255, 255, 0.22);
-\t\t\t\tbackground: rgba(30, 25, 45, 0.82);
-\t\t\t\tbackdrop-filter: blur(14px);
-\t\t\t\tcursor: pointer;
-\t\t\t\tbox-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
-\t\t\t\tdisplay: grid;
-\t\t\t\tplace-items: center;
-\t\t\t}
-\t\t\t#blueberry-launch:hover {
-\t\t\t\ttransform: translateY(-1px);
-\t\t\t}
-\t\t\t#blueberry-launch:focus-visible {
-\t\t\t\toutline: 2px solid #8b7cff;
-\t\t\t\toutline-offset: 3px;
-\t\t\t}
-\t\t\t#blueberry-launch img {
-\t\t\t\tdisplay: block;
-\t\t\t}
-\t\t</style>
-\t\t<script>
-\t\t\tdocument.getElementById("blueberry-launch").addEventListener("click", () => {
-\t\t\t\tconst address = document.getElementById("sj-address");
-\t\t\t\tconst form = document.getElementById("sj-form");
-\t\t\t\taddress.value = "${targetUrl}";
-\t\t\t\tif (form.requestSubmit) {
-\t\t\t\t\tform.requestSubmit();
-\t\t\t\t} else {
-\t\t\t\t\tform.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-\t\t\t\t}
-\t\t\t});
-\t\t</script>
+		<div id="blueberry-shortcut" aria-label="Open Blueberry Cloud Games">
+			<button id="blueberry-launch" type="button" title="Open Blueberry Cloud Games">
+				<img src="https://cdn.simpleicons.org/steam/ffffff" alt="Steam" width="30" height="30" />
+			</button>
+		</div>
+		<div id="blueberry-loader-shortcut">
+			<a href="/loader.html" target="_blank" rel="noopener" title="Open the experimental third-party relay loader">Relay Loader ↗</a>
+		</div>
+		<style>
+			#blueberry-shortcut {
+				position: fixed;
+				top: 18px;
+				right: 18px;
+				z-index: 9999;
+			}
+			#blueberry-loader-shortcut {
+				position: fixed;
+				top: 82px;
+				right: 18px;
+				z-index: 9999;
+			}
+			#blueberry-loader-shortcut a {
+				display: block;
+				padding: 9px 11px;
+				border: 1px solid rgba(255, 255, 255, 0.2);
+				border-radius: 10px;
+				background: rgba(30, 25, 45, 0.88);
+				backdrop-filter: blur(14px);
+				color: #fff;
+				text-decoration: none;
+				font-size: 12px;
+				font-weight: 700;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.24);
+			}
+			#blueberry-loader-shortcut a:hover {
+				background: rgba(60, 50, 90, 0.95);
+			}
+			#blueberry-launch {
+				width: 54px;
+				height: 54px;
+				padding: 0;
+				border-radius: 16px;
+				border: 1px solid rgba(255, 255, 255, 0.22);
+				background: rgba(30, 25, 45, 0.82);
+				backdrop-filter: blur(14px);
+				cursor: pointer;
+				box-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+				display: grid;
+				place-items: center;
+			}
+			#blueberry-launch:hover {
+				transform: translateY(-1px);
+			}
+			#blueberry-launch:focus-visible {
+				outline: 2px solid #8b7cff;
+				outline-offset: 3px;
+			}
+			#blueberry-launch img {
+				display: block;
+			}
+		</style>
+		<script>
+			document.getElementById("blueberry-launch").addEventListener("click", () => {
+				const address = document.getElementById("sj-address");
+				const form = document.getElementById("sj-form");
+				if (!address || !form) {
+					window.open("${targetUrl}", "_blank", "noopener");
+					return;
+				}
+				address.value = "${targetUrl}";
+				if (form.requestSubmit) {
+					form.requestSubmit();
+				} else {
+					form.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+				}
+			});
+		</script>
 `;
 
 html = html.replace(marker, addition + marker);
 writeFileSync(file, html);
-console.log(`Added the single Blueberry/Steam shortcut targeting ${targetUrl}`);
+console.log("Added Blueberry shortcuts for the game page and the experimental relay loader.");
